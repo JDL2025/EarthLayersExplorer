@@ -186,8 +186,8 @@ window.TOPICS = {
     badge: "Trip",
     short: "What if you dug a tunnel straight through Earth? Where would you come out?",
     paras: [
-      "Tap any place on the globe to start digging there. Or tap Start in Chicago.",
-      "Then tap Next stop to dig deeper. You will make lots of stops on the way to the other side!",
+      "Tap anywhere on the globe to dig straight through from that spot. The dots show big cities, like Chicago. Tap a dot to start there!",
+      "Then tap Start digging here. Tap Next stop to dig deeper. You will make lots of stops on the way to the other side!",
       "Of course, no one could really do this. It is far too hot, and the squeeze would crush any machine."
     ],
     video: "what if you dug a hole through the earth"
@@ -201,5 +201,5 @@ window.EXPLORE_GROUPS = [
   ["Watch it move", ["convection", "hotspot", "magma", "core"]],
   ["How do we know?", ["quake", "know"]],
   ["Advanced layers", ["lithosphere", "asthenosphere", "plates"]],
-  ["Time machine", ["youngearth"]]
+  ["Ancient Earth time machine", ["youngearth"]]
 ];

@@ -10,15 +10,15 @@ A 3D model of the Earth that students can open up to learn about the layers insi
 - **Easy view / True scale** switch in the menu bar. Easy view draws the crust much thicker so students can see it and tap it. True scale shows the real sizes, where the crust is a thin line.
 - **Trips:**
   - **Journey to the center:** drag an elevator down to the center. A box shows the depth, heat, squeeze, and drive time as you go.
-  - **Dig straight through:** pick any place on the globe (or tap *Start in Chicago*) and dig a tunnel through the Earth. There are 26 stops, like "As deep as the Willis Tower is tall" and "The deepest hole ever dug," and at the end students see where they pop out.
+  - **Dig straight through:** tap anywhere on the globe (dots mark big cities, like Chicago) and dig a tunnel through the Earth. There are 33 stops, like "As deep as the Willis Tower is tall" and "The deepest hole ever dug," and at the end students see where they pop out.
 - **Watch it move:**
   - mantle convection (slow loops of hot rock rising and cooler rock sinking)
   - hot spot volcanoes (Hawaii)
   - where magma comes from
   - Earth's magnetic shield (swirling iron, field lines, solar wind, auroras)
 - **Earthquake Detective:** an earthquake sends P waves and S waves through the Earth. Seismographs around the edge light up when the waves arrive, and the **shadow zones** appear on the far side. That's how scientists found the liquid outer core.
-- **Young Earth time machine** (blue button under the title): 7 stops from 4.6 billion years ago to today. Students watch the Earth form, iron sink to make the core, the Moon-making crash, the first crust and oceans, the magnetic shield, and the inner core freezing. Each stop has four gauges (Heat, Layers, Water, Shield) for a data table.
-- **Earth right now** box (bottom right): real earthquakes from the last day, from the U.S. Geological Survey. Tap **More** to see the biggest ones, or show them as dots on the globe.
+- **Ancient Earth time machine** (blue button under the title): 7 stops from 4.6 billion years ago to today. Students watch the Earth form, iron sink to make the core, the Moon-making crash, the first crust and oceans, the magnetic shield, and the inner core freezing. Each stop has four gauges (Heat, Layers, Water, Shield) for a data table.
+- **Live Quake Tracker** box (bottom right): real earthquakes from the last day, from the U.S. Geological Survey. Tap **More** to see the biggest ones. Tap any earthquake in the list to fly to it on the globe.
 - **4 guided tours**, **Search**, and a **How to explore** help box that opens the first time.
 - **No ads, no logins, no tracking.** It's all plain files you own.
 
@@ -57,12 +57,12 @@ This folder is small: about 30 files and less than 3 MB. Everything the site nee
 | The stops on *Dig straight through* and *Journey to the center*, and the heat and squeeze numbers | `js/data/stops.js` |
 | Place names used to say where you start and pop out, and the hometown (Chicago) | `js/data/places.js` |
 | Guided tours | `js/data/tours.js` |
-| Young Earth time machine stops | `js/data/youngearth.js` |
+| Ancient Earth time machine stops | `js/data/youngearth.js` |
 | Colors and fonts | `css/app.css` (the list at the top) |
 
 You can edit files right on GitHub: open the file → pencil icon → make your change → **Commit changes**. The site updates in about a minute. Keep the quote marks and commas the way they are.
 
-**To turn off the Young Earth time machine:** in `index.html`, delete the line that loads `js/data/youngearth.js` (it has a comment above it). Nothing else changes.
+**To turn off the Ancient Earth time machine:** in `index.html`, delete the line that loads `js/data/youngearth.js` (it has a comment above it). Nothing else changes.
 
 ---
 
@@ -70,7 +70,7 @@ You can edit files right on GitHub: open the file → pencil icon → make your 
 
 - **Easy view is not to scale.** In Easy view, the crust is drawn about 15 times thicker than it really is, and the lithosphere and asthenosphere are thicker too. The cores are drawn at their real sizes. The About screen (under **Show**) explains this, and the True scale button shows the real sizes.
 - **The inside of the Earth can't be photographed.** It's drawn as a model using scientists' numbers: the PREM model of Earth's interior, USGS, and IRIS. Temperatures are best estimates, rounded, in °F. The earthquake wave paths are calculated from a simplified version of real wave speeds, so the shadow zones land in about the right places.
-- **Earth right now needs the internet.** It loads live data from earthquake.usgs.gov. If the school network blocks that site, the box says "No connection" and everything else still works.
+- **The Live Quake Tracker needs the internet.** It loads live data from earthquake.usgs.gov. If the school network blocks that site, the box says "No connection" and everything else still works.
 - **How the site describes the mantle:** the mantle cards call it liquid rock, sometimes thick like honey, to match how it's taught in class. Earthquake Detective and the asthenosphere card describe it as soft and gooey, so the S-wave evidence for the liquid outer core still makes sense. All of this text is in `js/data/layers.js`, `js/data/topics.js`, and `js/data/stops.js` if you ever want to change it.
 - **Animations are sped up.** Convection shows about 10 million years per second, and the earthquake shows about 85 seconds of real time per second. The cards say so.
 - **Older iPads:** if animations run slowly, the site automatically draws fewer pixels to keep things smooth.

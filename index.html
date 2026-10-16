@@ -13,7 +13,7 @@
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="assets/icon-180.png">
   <link rel="stylesheet" href="css/app.css">
-  <link rel="stylesheet" href="css/youngearth.css"><!-- Young Earth time machine -->
+  <link rel="stylesheet" href="css/youngearth.css"><!-- Ancient Earth time machine -->
 </head>
 <body>
   <div id="stage" aria-label="3D model of Earth"></div>
@@ -59,11 +59,11 @@
     <button class="dock-btn" data-panel="search"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg><span>Search</span></button>
   </nav>
 
-  <!-- Earth right now (today's earthquakes) -->
-  <aside class="status" id="status" aria-label="Earth right now">
+  <!-- Live Quake Tracker (today's earthquakes) -->
+  <aside class="status" id="status" aria-label="Live Quake Tracker">
     <button class="status-head" id="statusToggle" aria-expanded="false" aria-controls="statusMore">
       <span class="status-dot" aria-hidden="true"></span>
-      <span class="status-title">Earth right now</span>
+      <span class="status-title">Live Quake Tracker</span>
       <span class="status-more-label" id="statusMoreLabel">More</span>
       <svg class="status-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>
     </button>
@@ -101,7 +101,7 @@
     <div class="panel-body">
       <label class="toggle"><input type="checkbox" data-show="labels" checked><span>Layer names</span></label>
       <label class="toggle"><input type="checkbox" data-show="advanced"><span>Advanced layers <small>Lithosphere and asthenosphere</small></span></label>
-      <label class="toggle"><input type="checkbox" data-show="quakes"><span>Today’s earthquakes <small>Real earthquakes from the last day</small></span></label>
+      <label class="toggle"><input type="checkbox" data-show="quakes"><span>Live Quake Tracker dots <small>Real earthquakes from the last day</small></span></label>
       <button class="wide-btn" id="fullscreenBtn" hidden>Full screen</button>
       <button class="wide-btn ghost" data-panel="help">How to explore (help)</button>
       <button class="wide-btn ghost" data-panel="about">About this site &amp; credits</button>
@@ -157,7 +157,7 @@
   <script src="js/data/stops.js"></script>
   <script src="js/data/tours.js"></script>
   <script src="js/data/places.js"></script>
-  <!-- Young Earth time machine content (remove this line AND the youngearth.css line at the top to turn it off) -->
+  <!-- Ancient Earth time machine content (remove this line AND the youngearth.css line at the top to turn it off) -->
   <script src="js/data/youngearth.js"></script>
   <!-- The program -->
   <script type="module" src="js/main.js"></script>

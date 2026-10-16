@@ -156,6 +156,7 @@ export function init(api, ui) {
     if (pinTag) { pinTag.remove(); pinTag = null; }
     if (pin) { api.earth.remove(pin); pin = null; }
     if (depthbar) { depthbar.remove(); depthbar = null; }
+    showCities(false);
     if (state && state.stopAnim) state.stopAnim();
     api.setGlobeOnly(false);
     ui.restoreBar();
@@ -176,6 +177,7 @@ export function init(api, ui) {
         { icon: 'down', label: 'Down', onClick: () => jump(1) }
       ]
     });
+    ui.tapHandler = () => true;      // tapping the Earth does nothing during the trip, so kids stay in the elevator
     if (api.view !== 'slice') api.setView('slice');
     const stops = STOPS.map(s => ({ ...s, dug: s.depth }));
     state = { kind: 'journey', phase: 'ride', dug: 0, stops };
@@ -227,7 +229,7 @@ export function init(api, ui) {
     readout(d);
     // which stop are we at (or just passed)?
     let idx = 0;
-    state.stops.forEach((s, i) => { if (d >= s.depth - Math.max(0.02, s.depth * 0.04)) idx = i; });
+    state.stops.forEach((s, i) => { if (d >= s.depth - Math.min(20, Math.max(0.02, s.depth * 0.04))) idx = i; });
     state.idx = idx;
     const s = state.stops[idx];
     tag(`${icon('pin')} ${esc(depthText(d)[0])}`);
@@ -346,31 +348,79 @@ export function init(api, ui) {
   });
 
   function dig(opts = {}) {
-    ui.startActivity({
-      id: 'dig', title: 'Dig straight through', onStop: cleanup,
-      buttons: [{ icon: 'pin', label: 'Start in Chicago', onClick: () => chooseStart(...homeLatLon()) }]
-    });
+    ui.startActivity({ id: 'dig', title: 'Dig straight through', onStop: cleanup });
     state = { kind: 'dig', phase: 'pick', dug: 0, stops: [] };
     api.keepAnimating('trip', true);
     const [hla, hlo] = homeLatLon();
     api.setView('cutaway', { yaw: api.yawFor(hlo), pitch: Math.min(1.1, hla * Math.PI / 180 * 0.9) });
     api.setGlobeOnly(true);
-    ui.setHud('Tap any place on the globe to start digging there.');
-    const c = ui.topicCard('dig');
-    const slot = c.querySelector('[data-slot="controls"]');
-    slot.innerHTML = `<div class="actions" style="margin:0 0 6px"><button class="act primary" data-dig="home">${icon('pin')}<span>Start in Chicago<small>Our hometown</small></span></button></div><p class="note" data-dig="picked"></p>`;
-    slot.querySelector('[data-dig="home"]').onclick = () => chooseStart(...homeLatLon());
-    ui.tapHandler = (hit) => {
+    ui.setHud('Tap anywhere on the globe to dig straight through.');
+    ui.topicCard('dig');
+    showCities(true);
+    ui.tapHandler = (hit, x, y) => {
       if (!state || state.phase !== 'pick') return false;
+      const city = cityAt(x, y);
+      if (city) { chooseStart(city[1], city[2], true, city[0]); return true; }
       if (hit && hit.type === 'surface') { chooseStart(hit.lat, hit.lon, true); return true; }
       return true;
     };
   }
+  // ---------- big-city dots for picking a starting place ----------
+  const CITY_NAMES = window.DIG_CITIES || [];
+  const cities = CITY_NAMES.map(n => (window.PLACES || []).find(p => p[0] === n)).filter(Boolean);
+  let cityDots = null, cityTags = [];
+  function showCities(on) {
+    if (cityDots) { api.earth.remove(cityDots); cityDots.geometry.dispose(); cityDots = null; }
+    cityTags.forEach(t => t.remove()); cityTags = [];
+    if (!on || !cities.length) { api.requestRender(); return; }
+    const n = cities.length, pos = new Float32Array(n * 6), col = new Float32Array(n * 6), size = new Float32Array(n * 2), al = new Float32Array(n * 2);
+    cities.forEach(([name, la, lo], i) => {
+      const v = api.latLonToLocal(la, lo, 1.004);
+      const home = name === (window.HOMETOWN || [])[0];
+      pos.set([v.x, v.y, v.z, v.x, v.y, v.z], i * 6);
+      col.set(home ? [1, 0.55, 0.3, 1, 1, 1] : [0.2, 0.25, 0.35, 1, 1, 1], i * 6);
+      size.set(home ? [20, 11] : [15, 8], i * 2); al.set([0.95, 1], i * 2);
+      const tag = document.createElement('div');
+      tag.className = 'tag-mark city' + (home ? ' home' : '');
+      tag.textContent = name.split(',')[0];
+      document.getElementById('labels').appendChild(tag);
+      cityTags.push(tag);
+    });
+    cityDots = api.makeDots(pos, col, size, al, { soft: 0 });
+    cityDots.renderOrder = 6;
+    api.earth.add(cityDots);
+    api.requestRender();
+  }
+  function cityScreen(c) {
+    const w = api.earth.localToWorld(api.latLonToLocal(c[1], c[2], 1.004));
+    const toCam = api.camera.position.clone().sub(w).normalize();
+    const p = api.project(w);
+    return { p, vis: p.ok && w.clone().normalize().dot(toCam) > 0.12 };
+  }
+  function cityAt(x, y) {
+    if (!cityDots) return null;
+    let best = null, bd = 26;
+    cities.forEach(c => { const s = cityScreen(c); if (!s.vis) return; const d = Math.hypot(s.p.x - x, s.p.y - y); if (d < bd) { bd = d; best = c; } });
+    return best;
+  }
+  ui.afterRenderHooks.add(() => {
+    if (!cityDots) return;
+    const placed = [];
+    cities.forEach((c, i) => {
+      const t = cityTags[i], s = cityScreen(c);
+      const home = t.classList.contains('home');
+      let show = s.vis;
+      if (show && !home) for (const q of placed) if (Math.abs(q.x - s.p.x) < 58 && Math.abs(q.y - s.p.y) < 20) { show = false; break; }
+      t.style.display = show ? '' : 'none';
+      if (show) { placed.push(s.p); t.style.transform = `translate(${s.p.x}px, ${s.p.y - 16}px) translate(-50%, -100%)`; }
+    });
+  });
+
   function homeLatLon() { const h = window.HOMETOWN || ['Chicago, Illinois', 41.88, -87.63]; return [h[1], h[2]]; }
-  function chooseStart(lat, lon, fromTap) {
+  function chooseStart(lat, lon, fromTap, cityName) {
     if (!state || state.kind !== 'dig') return;
     const local = api.latLonToLocal(lat, lon);
-    const place = describe(lat, lon);
+    const place = cityName ? { water: false, text: cityName, short: cityName, phrase: `in ${cityName}` } : describe(lat, lon);
     state.start = { lat, lon, local, place };
     placePin(local, `${icon('pin')} Start: ${esc(place.short)}`);
     const slot = document.querySelector('[data-slot="controls"]');
@@ -395,10 +445,10 @@ export function init(api, ui) {
     state.phase = 'ride'; state.i = 0; state.dug = 0;
     ui.tapHandler = () => true;      // taps do nothing during the ride
     ui.setHud(`Digging from ${state.start.place.short}`);
+    showCities(false);
     api.setGlobeOnly(false);
     if (pin) pin.visible = false;
     if (pinTag) pinTag.style.display = 'none';
-    ui.actBar && (ui.actBar.querySelector('[data-a="0"]').style.display = 'none');
     api.setView('slice', { up: state.start.local, dist: api.fitDist() });
     setTimeout(() => {
       if (!state || state.kind !== 'dig') return;

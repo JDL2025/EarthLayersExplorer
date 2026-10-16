@@ -1,5 +1,5 @@
 // =====================================================================
-// Earth Explorer — "Earth right now": real earthquakes from the last day
+// Earth Explorer — "Live Quake Tracker": real earthquakes from the last day
 // Data: U.S. Geological Survey (free, public feed). Needs the internet.
 // =====================================================================
 import { icon } from './icons.js';
@@ -46,8 +46,9 @@ export function init(api, ui) {
       <div class="srow"><div class="srow-top"><span>Started in the crust</span><b>${fmt(quakes.length - deep)}</b></div>
         <div class="srow-top"><span>Started in the mantle</span><b>${fmt(deep)}</b></div>
         <p>Most earthquakes start in the crust. A few start deep in the mantle, where one plate sinks under another.</p></div>
-      <div class="srow" style="border-bottom:0"><div class="srow-top"><span>Biggest ones</span></div></div>
-      ${big.slice(0, 6).map((q, i) => `<button class="quake-row" data-qi="${quakes.indexOf(q)}"><span class="mag">${q.mag.toFixed(1)}<small>magnitude</small></span><div><b>${esc(q.place)}</b><span>${ago(q.time)} · started ${fmt(q.depth)} km down, ${layerText(q.depth)}</span></div></button>`).join('')}
+      <div class="srow" style="border-bottom:0"><div class="srow-top"><span>Biggest ones</span></div>
+        <p class="tap-hint">👆 Tap any earthquake in this list to see it on the globe!</p></div>
+      ${big.slice(0, 6).map((q, i) => `<button class="quake-row" data-qi="${quakes.indexOf(q)}"><span class="mag">${q.mag.toFixed(1)}<small>magnitude</small></span><div><b>${esc(q.place)}</b><span>${ago(q.time)} · started ${fmt(q.depth)} km down, ${layerText(q.depth)}</span></div><span class="go">${icon('pin')}</span></button>`).join('')}
       <button class="wide-btn ghost" data-qshow style="margin:12px 0 4px">${showing ? 'Hide them on the globe' : 'Show them on the globe'}</button>
       <p class="status-note">Data: U.S. Geological Survey (earthquake.usgs.gov). Magnitude tells how strong a quake is. Each step up is about 32 times more energy.</p>`;
     more.querySelectorAll('[data-qi]').forEach(b => b.onclick = () => { if (!showing) ui.setShow('quakes', true); openPin(+b.dataset.qi, true); });
@@ -130,7 +131,7 @@ export function init(api, ui) {
       <p>${q.mag >= 6 ? 'This is a strong earthquake. It can damage buildings near where it happened.' : q.mag >= 4.5 ? 'People nearby would feel this earthquake shake.' : 'This is a small earthquake. Many people nearby might not even notice it.'}</p></div>
       <p class="note">Most earthquakes happen where Earth’s plates meet. Turn on more pins to see the pattern!</p>
       <div class="actions"><a class="act" href="https://earthquake.usgs.gov/earthquakes/map/" target="_blank" rel="noopener">${icon('eye')}<span>See the USGS earthquake map<small>Opens a new tab</small></span></a></div>`;
-    ui.showCard(h, { badge: 'Earth right now', badgeColor: '#ff7a59', badgeIcon: 'quake', kind: 'quake', id: 'quake-' + i });
+    ui.showCard(h, { badge: 'Live Quake Tracker', badgeColor: '#ff7a59', badgeIcon: 'quake', kind: 'quake', id: 'quake-' + i });
   }
 
   function show(on) {

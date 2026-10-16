@@ -66,11 +66,32 @@ window.STOPS = [
   { depth: 2900, icon: "drop", title: "Goodbye mantle, hello outer core!",
     text: "You have gone about 2,900 km (1,800 miles). That is about as far as from Chicago to Los Angeles. Splash! You just dropped into the outer core, an ocean of runny liquid metal." },
 
+  { depth: 3300, icon: "wave", title: "An ocean of metal",
+    text: "You have gone about 3,300 km (2,050 miles). All around you is liquid iron and nickel. The outer core holds more than 100 times as much liquid as all of Earth’s oceans put together!" },
+
   { depth: 4000, icon: "magnet", title: "Swimming in liquid iron",
     text: "You have gone about 4,000 km (2,500 miles). The liquid iron around you is slowly swirling. This moving metal makes Earth’s magnetic field!" },
 
+  { depth: 4590, icon: "ruler", title: "As far as Chicago to Alaska",
+    text: "You have gone about 4,590 km (2,850 miles). That is about as far as flying from Chicago to Anchorage, Alaska! The liquid iron here flows about 10 to 20 km (6 to 12 miles) every year. That is much faster than the mantle." },
+
+  { depth: 5000, icon: "squeeze", title: "500 elephants on your fingernail",
+    text: "You have gone about 5,000 km (3,100 miles). The squeeze here is more than 3 million times the air pressure at the surface. That is like about 500 elephants standing on one fingernail!" },
+
   { depth: 5150, icon: "iron", title: "The inner core",
     text: "You have gone about 5,150 km (3,200 miles). You just hit the inner core, a giant ball of solid metal. A scientist named Inge Lehmann discovered it in 1936!" },
+
+  { depth: 5400, icon: "sun", title: "As hot as the Sun",
+    text: "You have gone about 5,400 km (3,350 miles). It is about 10,000°F here. That is about as hot as the surface of the Sun!" },
+
+  { depth: 5600, icon: "iron", title: "Super heavy metal",
+    text: "You have gone about 5,600 km (3,480 miles). The metal here is packed so tightly that a one-gallon jug of it would weigh about 110 pounds. A gallon of milk weighs only about 8½ pounds!" },
+
+  { depth: 5720, icon: "question", title: "A ball inside a ball?",
+    text: "You have gone about 5,720 km (3,550 miles). Some scientists think the middle of the inner core is a little different from the rest, like a ball inside a ball. It would be about 1,300 km (800 miles) across. Scientists are still studying it!" },
+
+  { depth: 6090, icon: "ruler", title: "As far as Chicago to Peru",
+    text: "You have gone about 6,090 km (3,780 miles). That is about as far as flying from Chicago to Lima, Peru, in South America. The center is only about 280 km (175 miles) away!" },
 
   { depth: 6371, icon: "star", title: "The center of the Earth!", center: true,
     text: "You made it! You have gone 6,371 km (3,960 miles). That is about as far as flying from Chicago to London. It is about 10,000°F here, and the squeeze is about 3.6 million times the air pressure at the surface.",

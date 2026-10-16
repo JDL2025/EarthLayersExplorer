@@ -61,3 +61,14 @@ window.PLACES = [
   ["McMurdo Station, Antarctica", -77.85, 166.67], ["the South Pole", -90, 0], ["the North Pole", 90, 0],
   ["Svalbard, Norway", 78.22, 15.65], ["St. Helena", -15.96, -5.7]
 ];
+
+/* Big cities shown as dots when you pick a place to dig from.
+   Each name must match a name in the PLACES list above. */
+window.DIG_CITIES = [
+  "Chicago, Illinois", "New York City", "Los Angeles, California", "Seattle, Washington", "Miami, Florida",
+  "Anchorage, Alaska", "Honolulu, Hawaii", "Toronto, Canada", "Mexico City, Mexico", "Bogotá, Colombia",
+  "Lima, Peru", "Rio de Janeiro, Brazil", "Buenos Aires, Argentina", "Reykjavík, Iceland", "London, England",
+  "Paris, France", "Madrid, Spain", "Rome, Italy", "Moscow, Russia", "Cairo, Egypt", "Lagos, Nigeria",
+  "Nairobi, Kenya", "Cape Town, South Africa", "Dubai, UAE", "Delhi, India", "Beijing, China",
+  "Tokyo, Japan", "Singapore", "Sydney, Australia", "Perth, Australia", "Auckland, New Zealand"
+];

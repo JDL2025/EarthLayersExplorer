@@ -1,5 +1,5 @@
 /* =====================================================================
-   EARTH EXPLORER — EARTH TIME MACHINE ("Young Earth")
+   EARTH EXPLORER — ANCIENT EARTH TIME MACHINE
    ---------------------------------------------------------------------
    The story students step through, oldest first. Each stop has:
      date, dateShort (timeline label), short (timeline caption), title, lead
@@ -11,7 +11,7 @@
    ===================================================================== */
 window.YOUNG_EARTH = {
   intro: {
-    title: "Earth Time Machine",
+    title: "Ancient Earth",
     lead: "Earth did not always have layers. Let’s travel back in time and watch how Earth got its crust, mantle, and core!",
     points: [
       ["question", "How big is a billion?", "A billion is a thousand millions. Earth is about 4.5 billion years old. If Earth’s whole life were one 24-hour day, dinosaurs would show up about an hour before midnight. Humans would show up in the last few seconds!"],
@@ -23,8 +23,8 @@ window.YOUNG_EARTH = {
 
   stops: [
     {
-      id: "rocks", date: "About 4.6 billion years ago", dateShort: "4.6", short: "Rocks crash", title: "Rocks Crash Together",
-      lead: "Earth formed from dust and rocks circling the young Sun. Rocks crashed and stuck together, and Earth grew bigger and bigger.",
+      id: "rocks", date: "About 4.6 billion years ago", dateShort: "4.6 B", short: "Rocks clump", title: "Rocks Clump and Heat Up",
+      lead: "Earth formed from dust and rocks circling the young Sun. Rocks crashed and clumped together, and Earth grew bigger and hotter.",
       gauges: { heat: [3, "Very hot"], layers: [0, "All mixed up"], water: [1, "Trapped in rocks"], shield: [0, "Off"] },
       points: [
         ["star", "Space rocks everywhere", "Rocks of every size slammed into the growing Earth. Every crash made heat."],
@@ -35,7 +35,7 @@ window.YOUNG_EARTH = {
       globe: { size: 0.82, today: 0, dark: 0.55, ocean: 0, sort: 0, magma: 0.35, inner: 0, meteors: true }
     },
     {
-      id: "iron", date: "About 4.5 billion years ago", dateShort: "4.5", short: "Iron sinks", title: "Heavy Iron Sinks",
+      id: "iron", date: "About 4.5 billion years ago", dateShort: "4.5 B", short: "Iron sinks", title: "Heavy Iron Sinks",
       lead: "Baby Earth got so hot that much of it melted. Heavy iron sank to the middle and made the core. Lighter rock floated up.",
       gauges: { heat: [4, "Melted"], layers: [2, "Sorting"], water: [1, "Steam"], shield: [0, "Off"] },
       points: [
@@ -47,7 +47,7 @@ window.YOUNG_EARTH = {
       globe: { size: 1, today: 0, dark: 0, ocean: 0, sort: [0, 1], magma: 1, inner: 0 }
     },
     {
-      id: "moon", date: "About 4.5 billion years ago", dateShort: "4.5", short: "The Moon forms", title: "A Giant Crash Makes the Moon",
+      id: "moon", date: "About 4.5 billion years ago", dateShort: "4.5 B", short: "The Moon forms", title: "A Giant Crash Makes the Moon",
       lead: "A planet about the size of Mars crashed into young Earth. The crash blasted rock into space. That rock came together to make our Moon.",
       gauges: { heat: [4, "Melted again"], layers: [3, "Core + mantle"], water: [1, "Steam"], shield: [0, "Off"] },
       points: [
@@ -60,7 +60,7 @@ window.YOUNG_EARTH = {
       globe: { size: 1, today: 0, dark: 0, ocean: 0, sort: 1, magma: 1, inner: 0, theia: true }
     },
     {
-      id: "crust", date: "About 4.4 billion years ago", dateShort: "4.4", short: "First crust", title: "The First Crust and Oceans",
+      id: "crust", date: "About 4.4 billion years ago", dateShort: "4.4 B", short: "First crust", title: "The First Crust and Oceans",
       lead: "Earth slowly cooled. The outside hardened into the first crust. Steam in the air cooled and fell as rain, filling the first oceans.",
       gauges: { heat: [2, "Cooling"], layers: [3, "Crust, mantle, core"], water: [3, "First oceans"], shield: [1, "Maybe"] },
       points: [
@@ -73,7 +73,7 @@ window.YOUNG_EARTH = {
       globe: { size: 1, today: 0, dark: 1, ocean: 0.7, sort: 1, magma: 0, inner: 0, moon: true }
     },
     {
-      id: "shield", date: "About 3.7 billion years ago", dateShort: "3.7", short: "A magnetic shield", title: "Earth Gets a Shield",
+      id: "shield", date: "About 3.7 billion years ago", dateShort: "3.7 B", short: "A magnetic shield", title: "Earth Gets a Shield",
       lead: "Swirling liquid iron in the core made a magnetic field. It became an invisible shield that helped protect Earth’s air and water.",
       gauges: { heat: [1, "Warm"], layers: [3, "Crust, mantle, liquid core"], water: [4, "Oceans"], shield: [3, "On"] },
       points: [
@@ -86,7 +86,7 @@ window.YOUNG_EARTH = {
       globe: { size: 1, today: 0, dark: 1, ocean: 1, sort: 1, magma: 0, inner: 0, moon: true, field: true }
     },
     {
-      id: "inner", date: "About 1 billion years ago", dateShort: "1", short: "Inner core forms", title: "The Inner Core Freezes",
+      id: "inner", date: "About 1 billion years ago", dateShort: "1.0 B", short: "Inner core forms", title: "The Inner Core Freezes",
       lead: "Deep in the center, Earth slowly cooled. Liquid iron began to freeze into a solid ball: the inner core.",
       gauges: { heat: [1, "Mild"], layers: [4, "Four main layers"], water: [4, "Oceans"], shield: [4, "Strong"] },
       points: [

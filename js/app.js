@@ -167,7 +167,20 @@ export function createUI(api) {
   function placeBanner() {
     const r = card.hidden ? null : card.getBoundingClientRect();
     const open = r && r.left > 40 ? r.left : innerWidth;
-    if (bannerEl) { bannerEl.style.left = (open / 2) + 'px'; bannerEl.style.maxWidth = Math.min(560, open - 32) + 'px'; }
+    if (bannerEl) {
+      // keep the banner in the open space between the depth box (left) and the slider or card (right)
+      let L = 0, R = open;
+      const rd = ui.hudExtra.firstElementChild;
+      if (rd) L = rd.getBoundingClientRect().right + 12;
+      const db = document.querySelector('.depthbar');
+      if (db) R = Math.min(R, db.getBoundingClientRect().left - 12);
+      if (R - L < 300) {           // not enough room beside the box: put it at the bottom instead
+        L = 0; R = Math.min(open, db ? db.getBoundingClientRect().left - 8 : open);
+        bannerEl.style.top = 'auto'; bannerEl.style.bottom = 'calc(var(--dock-h) + 26px + var(--safe-b))';
+      } else { bannerEl.style.top = ''; bannerEl.style.bottom = ''; }
+      bannerEl.style.left = ((L + R) / 2) + 'px';
+      bannerEl.style.maxWidth = Math.max(220, Math.min(560, R - L - 16)) + 'px';
+    }
     const pb = $('#peelBar'); if (!pb.hidden) pb.style.left = (open / 2) + 'px';
   }
   api.afterRender = () => {
@@ -471,7 +484,7 @@ export function createUI(api) {
   Object.entries(LAYERS).forEach(([id, L]) => index.push({ id, name: L.name, sub: L.kind, text: [L.short, ...(L.paras || []), ...(L.points || []).map(p => p[1] + ' ' + p[2]), ...(L.facts || []).map(f => f.join(' '))].join(' ') }));
   Object.entries(TOPICS).forEach(([id, T]) => index.push({ id, name: T.name, sub: T.group, text: [T.short, ...(T.paras || []), ...(T.points || []).map(p => p[1] + ' ' + p[2]), ...(T.facts || []).map(f => f.join(' '))].join(' ') }));
   (window.STOPS || []).forEach((s, i) => { if (i) index.push({ id: 'stop:' + i, name: s.title, sub: 'A stop on the trip to the center', text: s.text + ' ' + (s.adv || '') }); });
-  if (window.YOUNG_EARTH) window.YOUNG_EARTH.stops.forEach((s, i) => index.push({ id: 'young:' + i, name: s.title, sub: 'Time machine: ' + s.date, text: s.lead + ' ' + s.points.map(p => p[1] + ' ' + p[2]).join(' ') }));
+  if (window.YOUNG_EARTH) window.YOUNG_EARTH.stops.forEach((s, i) => index.push({ id: 'young:' + i, name: s.title, sub: 'Ancient Earth: ' + s.date, text: s.lead + ' ' + s.points.map(p => p[1] + ' ' + p[2]).join(' ') }));
   const QUICK = ['core', 'magma', 'volcano', 'earthquake', 'diamond', 'iron', 'Everest', 'plates'];
   function runSearch(q) {
     q = q.trim().toLowerCase();
@@ -504,7 +517,7 @@ export function createUI(api) {
   runSearch('');
 
   // ---------------------------------------------------------------
-  // Earth right now box placement
+  // Live Quake Tracker box placement
   // ---------------------------------------------------------------
   function placeStatus() {
     const st = $('#status'), dock = $('#dock');

@@ -91,7 +91,21 @@ export function init(api, ui) {
     const shift = (6 - my) * pxPerMy;
     g.fillStyle = COL.litho; g.fillRect(0, plateTop, W, plateBot - plateTop);
     g.fillStyle = '#5f4632'; g.fillRect(0, plateTop, W, 22);
-    speckle(g, 0, plateTop, W, plateBot - plateTop, '#c9d6e3', 260, 9);
+    // marks on the plate move with it, so you can see it slide to the left
+    g.save(); g.beginPath(); g.rect(0, plateTop, W, plateBot - plateTop); g.clip();
+    const gap = 90, off = shift % gap;
+    g.strokeStyle = 'rgba(40,50,62,.5)'; g.lineWidth = 3;
+    for (let x = -off; x < W + gap; x += gap) { g.beginPath(); g.moveTo(x, plateTop + 22); g.lineTo(x + 16, plateBot); g.stroke(); }
+    g.fillStyle = 'rgba(30,22,16,.6)';
+    for (let x = -off + 40; x < W + gap; x += gap) g.fillRect(x, plateTop + 7, 18, 6);
+    const span = W + 40;
+    g.fillStyle = '#c9d6e3';
+    for (let i = 0; i < 260; i++) {
+      const x = (((rnd(i * 3 + 9) * span - shift) % span) + span) % span - 20, y = plateTop + 24 + rnd(i * 7 + 9) * (plateBot - plateTop - 26);
+      g.globalAlpha = 0.25 + 0.4 * rnd(i + 9); g.fillRect(x, y, 2.4, 2.4);
+    }
+    g.globalAlpha = 1;
+    g.restore();
     // islands
     const born = ISLANDS.filter(([, age]) => age >= my);
     born.forEach(([name, age]) => {
@@ -118,11 +132,21 @@ export function init(api, ui) {
     // underwater baby volcano at the end
     if (my < 0.3) { const x = hotX + 6; g.fillStyle = '#6b4f3a'; g.beginPath(); g.moveTo(x - 50, plateTop + 2); g.quadraticCurveTo(x, plateTop - 40, x + 50, plateTop + 2); g.fill(); label(g, 'Next island (underwater)', x + 20, plateTop + 30, { size: 14 }); }
     // labels & arrows
-    arrow(g, 330, 222, 150, 222, '#fff', 6);
-    label(g, 'Plate moves', 240, 252, { size: 17, bg: 'rgba(10,14,22,.55)' });
+    // moving arrows (they slide left while the plate is moving)
+    const moving = my > 0.01;
+    g.strokeStyle = 'rgba(255,255,255,.35)'; g.lineWidth = 4; g.beginPath(); g.moveTo(140, 220); g.lineTo(360, 220); g.stroke();
+    for (let k = 0; k < 3; k++) {
+      const x = 360 - (((moving ? t * 70 : 0) + k * 73) % 220);
+      const a = Math.min(1, (x - 140) / 40, (360 - x) / 40);
+      g.globalAlpha = Math.max(0, a);
+      g.strokeStyle = '#fff'; g.lineWidth = 7; g.lineCap = 'round'; g.lineJoin = 'round';
+      g.beginPath(); g.moveTo(x + 14, 204); g.lineTo(x - 4, 220); g.lineTo(x + 14, 236); g.stroke();
+    }
+    g.globalAlpha = 1;
+    label(g, moving ? 'Plate moves this way' : 'Plate moves', 250, 254, { size: 17, bg: 'rgba(10,14,22,.6)' });
     label(g, 'Hot spot (stays still)', hotX - 10, H - 34, { size: 18 });
     label(g, 'Mantle', 80, H - 34, { size: 18 });
-    label(g, my > 0.05 ? `${my.toFixed(1)} million years ago` : 'Today', 16, 34, { size: 20, align: 'left', color: '#e9b47c' });
+    label(g, my > 0.05 ? `${my.toFixed(1)} million years ago` : 'Today', 300, H - 100, { size: 20, color: '#e9b47c' });
     cap.textContent = 'Close-up drawing (not to scale). The plate slides over the hot spot, so a chain of islands forms.';
   }
 

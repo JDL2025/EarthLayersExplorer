@@ -17,7 +17,7 @@ export function init(api, ui) {
   // entry button under the title
   const entry = document.createElement('button');
   entry.className = 'ye-entry';
-  entry.innerHTML = `${icon('hourglass')}<span>Young Earth</span>`;
+  entry.innerHTML = `${icon('hourglass')}<span>Ancient Earth</span>`;
   entry.onclick = () => start();
   document.getElementById('hud').appendChild(entry);
 
@@ -37,7 +37,7 @@ export function init(api, ui) {
     api.keepAnimating('young', true);
     ui.labelsHidden = true; ui.clearLabels();
     buildBar();
-    ui.setHud('Earth Time Machine: watch how Earth got its layers.');
+    ui.setHud('Ancient Earth: watch how Earth got its layers.');
     if (typeof i === 'number') go(i); else intro();
   }
   function exit() {
@@ -83,7 +83,7 @@ export function init(api, ui) {
     const h = `<h2>${esc(Y.intro.title)}</h2><p class="ye-lead">${esc(Y.intro.lead)}</p>
       ${ui.part.points(Y.intro.points)}
       <div class="ye-nav one"><button class="tour-btn primary" data-yn="0">${esc(Y.intro.start)} →</button></div>`;
-    const c = ui.showCard(h, { badge: 'Time machine', badgeColor: '#5ea6e6', badgeIcon: 'hourglass', kind: 'young', id: 'young' });
+    const c = ui.showCard(h, { badge: 'Ancient Earth', badgeColor: '#5ea6e6', badgeIcon: 'hourglass', kind: 'young', id: 'young' });
     c.querySelector('[data-yn]').onclick = () => go(0);
     setGlobe(S[0].globe, true);
   }

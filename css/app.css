@@ -120,6 +120,8 @@ button:focus-visible, input:focus-visible + span { outline: 3px solid var(--suns
 .tag-mark.warn { background: rgba(120,40,40,.85); border-color: rgba(255,140,140,.5); }
 .tag-mark.good { background: rgba(30,90,60,.85); border-color: rgba(140,255,190,.5); }
 .tag-mark.big { font-size: 15px; padding: 5px 12px; }
+.tag-mark.city { font-size: 12.5px; padding: 2px 7px; background: rgba(14,18,27,.72); }
+.tag-mark.city.home { font-size: 14px; padding: 3px 9px; background: rgba(160,70,30,.9); border-color: rgba(255,190,150,.7); }
 .tag-mark svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; vertical-align: -2px; margin-right: 3px; }
 
 /* ---------- notice ---------- */
@@ -439,7 +441,10 @@ button:focus-visible, input:focus-visible + span { outline: 3px solid var(--suns
 .srow-top span { font-size: 14px; color: var(--ink-dim); }
 .srow-top b { font-weight: 700; font-size: 16px; color: var(--butterscotch); text-align: right; font-variant-numeric: tabular-nums; }
 .srow p { margin: 4px 0 0; font-size: 14px; line-height: 1.4; color: var(--ink); }
-.quake-row { display: grid; grid-template-columns: 54px 1fr; gap: 10px; align-items: center; width: 100%; padding: 8px 0; border: 0; border-bottom: 1px solid var(--line); background: none; text-align: left; cursor: pointer; }
+.tap-hint { margin: 6px 0 0 !important; padding: 8px 10px; border-radius: 10px; background: rgba(140,196,240,.14); border: 1px solid rgba(140,196,240,.4); color: #cfe6f7 !important; font-weight: 700; font-size: 13.5px !important; }
+.quake-row .go svg { width: 22px; height: 22px; fill: none; stroke: var(--sunset); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.quake-row:active { background: var(--dusk-3); }
+.quake-row { display: grid; grid-template-columns: 54px 1fr 26px; gap: 10px; align-items: center; width: 100%; padding: 8px 0; border: 0; border-bottom: 1px solid var(--line); background: none; text-align: left; cursor: pointer; }
 .quake-row .mag { font-family: var(--display); font-weight: 800; font-size: 26px; color: #ffb39e; text-align: center; line-height: 1; }
 .quake-row .mag small { display: block; font-family: var(--body); font-weight: 400; font-size: 10.5px; color: var(--ink-dim); }
 .quake-row b { display: block; font-size: 14.5px; line-height: 1.25; }
