@@ -1,0 +1,63 @@
+/* =====================================================================
+   EARTH EXPLORER — PLACE NAMES
+   Used to name where you start and where you pop out on the
+   "Dig straight through" trip.  [name, latitude, longitude]
+   Latitude: north +, south −.  Longitude: east +, west −.
+   ===================================================================== */
+window.HOMETOWN = ["Chicago, Illinois", 41.88, -87.63];
+
+window.PLACES = [
+  ["Chicago, Illinois", 41.88, -87.63], ["Milwaukee, Wisconsin", 43.04, -87.91], ["Indianapolis, Indiana", 39.77, -86.16],
+  ["Detroit, Michigan", 42.33, -83.05], ["St. Louis, Missouri", 38.63, -90.2], ["Minneapolis, Minnesota", 44.98, -93.27],
+  ["New York City", 40.71, -74.0], ["Boston, Massachusetts", 42.36, -71.06], ["Washington, D.C.", 38.9, -77.04],
+  ["Atlanta, Georgia", 33.75, -84.39], ["Miami, Florida", 25.76, -80.19], ["Orlando, Florida", 28.54, -81.38],
+  ["New Orleans, Louisiana", 29.95, -90.07], ["Houston, Texas", 29.76, -95.37], ["Dallas, Texas", 32.78, -96.8],
+  ["Denver, Colorado", 39.74, -104.99], ["Phoenix, Arizona", 33.45, -112.07], ["Las Vegas, Nevada", 36.17, -115.14],
+  ["Salt Lake City, Utah", 40.76, -111.89], ["Los Angeles, California", 34.05, -118.24], ["San Francisco, California", 37.77, -122.42],
+  ["Seattle, Washington", 47.61, -122.33], ["Anchorage, Alaska", 61.22, -149.9], ["Honolulu, Hawaii", 21.31, -157.86],
+  ["Kansas City, Missouri", 39.1, -94.58], ["Nashville, Tennessee", 36.16, -86.78], ["Albuquerque, New Mexico", 35.08, -106.65],
+  ["Billings, Montana", 45.78, -108.5], ["Bismarck, North Dakota", 46.81, -100.78], ["Boise, Idaho", 43.62, -116.2],
+  ["Toronto, Canada", 43.65, -79.38], ["Montreal, Canada", 45.5, -73.57], ["Vancouver, Canada", 49.28, -123.12],
+  ["Winnipeg, Canada", 49.9, -97.14], ["Calgary, Canada", 51.05, -114.07], ["Yellowknife, Canada", 62.45, -114.37],
+  ["Iqaluit, Canada", 63.75, -68.52], ["Nuuk, Greenland", 64.18, -51.72], ["Reykjavík, Iceland", 64.15, -21.94],
+  ["Mexico City, Mexico", 19.43, -99.13], ["Monterrey, Mexico", 25.69, -100.32], ["Havana, Cuba", 23.11, -82.37],
+  ["Guatemala City, Guatemala", 14.63, -90.51], ["Panama City, Panama", 8.98, -79.52], ["Bogotá, Colombia", 4.71, -74.07],
+  ["Caracas, Venezuela", 10.48, -66.9], ["Quito, Ecuador", -0.18, -78.47], ["Lima, Peru", -12.05, -77.04],
+  ["Manaus, Brazil", -3.12, -60.02], ["La Paz, Bolivia", -16.5, -68.15], ["Brasília, Brazil", -15.79, -47.88],
+  ["Rio de Janeiro, Brazil", -22.91, -43.17], ["São Paulo, Brazil", -23.55, -46.63], ["Santiago, Chile", -33.45, -70.67],
+  ["Buenos Aires, Argentina", -34.6, -58.38], ["Ushuaia, Argentina", -54.8, -68.3], ["Montevideo, Uruguay", -34.9, -56.16],
+  ["London, England", 51.51, -0.13], ["Dublin, Ireland", 53.35, -6.26], ["Paris, France", 48.86, 2.35],
+  ["Madrid, Spain", 40.42, -3.7], ["Lisbon, Portugal", 38.72, -9.14], ["Rome, Italy", 41.9, 12.5],
+  ["Berlin, Germany", 52.52, 13.4], ["Oslo, Norway", 59.91, 10.75], ["Stockholm, Sweden", 59.33, 18.07],
+  ["Helsinki, Finland", 60.17, 24.94], ["Warsaw, Poland", 52.23, 21.01], ["Athens, Greece", 37.98, 23.73],
+  ["Istanbul, Turkey", 41.01, 28.98], ["Kyiv, Ukraine", 50.45, 30.52], ["Moscow, Russia", 55.76, 37.62],
+  ["Murmansk, Russia", 68.97, 33.08], ["Novosibirsk, Russia", 55.03, 82.92], ["Yakutsk, Russia", 62.03, 129.73],
+  ["Norilsk, Russia", 69.35, 88.2], ["Vladivostok, Russia", 43.12, 131.89], ["Petropavlovsk-Kamchatsky, Russia", 53.04, 158.65],
+  ["Cairo, Egypt", 30.04, 31.24], ["Casablanca, Morocco", 33.57, -7.59], ["Algiers, Algeria", 36.75, 3.06],
+  ["Tripoli, Libya", 32.89, 13.19], ["Dakar, Senegal", 14.72, -17.47], ["Lagos, Nigeria", 6.52, 3.38],
+  ["Accra, Ghana", 5.6, -0.19], ["Timbuktu, Mali", 16.77, -3.01], ["Khartoum, Sudan", 15.5, 32.56],
+  ["Addis Ababa, Ethiopia", 9.03, 38.74], ["Nairobi, Kenya", -1.29, 36.82], ["Kinshasa, DR Congo", -4.44, 15.27],
+  ["Luanda, Angola", -8.84, 13.23], ["Dar es Salaam, Tanzania", -6.79, 39.21], ["Lusaka, Zambia", -15.39, 28.32],
+  ["Windhoek, Namibia", -22.56, 17.08], ["Johannesburg, South Africa", -26.2, 28.05], ["Cape Town, South Africa", -33.92, 18.42],
+  ["Antananarivo, Madagascar", -18.88, 47.51], ["Riyadh, Saudi Arabia", 24.71, 46.68], ["Dubai, UAE", 25.2, 55.27],
+  ["Tehran, Iran", 35.69, 51.39], ["Baghdad, Iraq", 33.31, 44.36], ["Kabul, Afghanistan", 34.56, 69.21],
+  ["Tashkent, Uzbekistan", 41.3, 69.24], ["Astana, Kazakhstan", 51.17, 71.45], ["Karachi, Pakistan", 24.86, 67.0],
+  ["Delhi, India", 28.61, 77.21], ["Mumbai, India", 19.08, 72.88], ["Chennai, India", 13.08, 80.27],
+  ["Kolkata, India", 22.57, 88.36], ["Kathmandu, Nepal", 27.72, 85.32], ["Colombo, Sri Lanka", 6.93, 79.86],
+  ["Dhaka, Bangladesh", 23.81, 90.41], ["Lhasa, China", 29.65, 91.1], ["Ürümqi, China", 43.83, 87.62],
+  ["Ulaanbaatar, Mongolia", 47.89, 106.91], ["Beijing, China", 39.9, 116.4], ["Shanghai, China", 31.23, 121.47],
+  ["Chengdu, China", 30.57, 104.07], ["Hong Kong", 22.32, 114.17], ["Seoul, South Korea", 37.57, 126.98],
+  ["Tokyo, Japan", 35.68, 139.69], ["Sapporo, Japan", 43.06, 141.35], ["Taipei, Taiwan", 25.03, 121.57],
+  ["Manila, Philippines", 14.6, 120.98], ["Bangkok, Thailand", 13.76, 100.5], ["Hanoi, Vietnam", 21.03, 105.85],
+  ["Kuala Lumpur, Malaysia", 3.14, 101.69], ["Singapore", 1.35, 103.82], ["Jakarta, Indonesia", -6.2, 106.85],
+  ["Bali, Indonesia", -8.65, 115.22], ["Port Moresby, Papua New Guinea", -9.44, 147.18], ["Darwin, Australia", -12.46, 130.84],
+  ["Perth, Australia", -31.95, 115.86], ["Alice Springs, Australia", -23.7, 133.88], ["Adelaide, Australia", -34.93, 138.6],
+  ["Melbourne, Australia", -37.81, 144.96], ["Sydney, Australia", -33.87, 151.21], ["Brisbane, Australia", -27.47, 153.03],
+  ["Hobart, Australia", -42.88, 147.33], ["Auckland, New Zealand", -36.85, 174.76], ["Christchurch, New Zealand", -43.53, 172.64],
+  ["Suva, Fiji", -18.14, 178.44], ["Papeete, Tahiti", -17.53, -149.57], ["Apia, Samoa", -13.83, -171.76],
+  ["Guam", 13.44, 144.79], ["Easter Island, Chile", -27.11, -109.35], ["Galápagos Islands, Ecuador", -0.74, -90.31],
+  ["Azores, Portugal", 37.74, -25.67], ["Canary Islands, Spain", 28.29, -16.63], ["Cape Verde", 14.93, -23.51],
+  ["Bermuda", 32.3, -64.78], ["Falkland Islands", -51.7, -57.85], ["Mauritius", -20.16, 57.5], ["Maldives", 4.18, 73.51],
+  ["McMurdo Station, Antarctica", -77.85, 166.67], ["the South Pole", -90, 0], ["the North Pole", 90, 0],
+  ["Svalbard, Norway", 78.22, 15.65], ["St. Helena", -15.96, -5.7]
+];

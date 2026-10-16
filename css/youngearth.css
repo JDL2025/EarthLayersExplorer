@@ -1,0 +1,80 @@
+/* =====================================================================
+   Earth Time Machine ("Young Earth") — styles (only used by js/youngearth.js)
+   Same look as the Ancient Mars time machine.
+   ===================================================================== */
+:root { --ye-h: 96px; }
+
+.ye-entry {
+  pointer-events: auto; margin-top: 12px;
+  display: inline-flex; align-items: center; gap: 9px; min-height: 46px; padding: 0 18px 0 12px;
+  border-radius: 999px; border: 1px solid rgba(140,196,240,.55); cursor: pointer;
+  background: linear-gradient(135deg, rgba(40,92,150,.92), rgba(28,52,96,.92));
+  color: #eaf5ff; font: 700 16px var(--body); text-shadow: none;
+  box-shadow: 0 8px 24px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.12);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+}
+.ye-entry svg { width: 24px; height: 24px; fill: none; stroke: #9fd4ff; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.ye-entry:active { transform: scale(.97); }
+.young-on .ye-entry, .activity-on .ye-entry { display: none; }
+
+.young-on .dock, .young-on .status, .young-on .panel, .young-on .peelbar, .young-on .activitybar { display: none !important; }
+.young-on .views { opacity: .45; pointer-events: none; }
+.young-on .card { bottom: calc(var(--ye-h) + 22px + var(--safe-b)); }
+
+.ye-bar {
+  position: absolute; z-index: 24; left: 50%; transform: translateX(-50%);
+  bottom: calc(12px + var(--safe-b)); width: min(900px, calc(100vw - 24px)); height: var(--ye-h);
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; padding: 8px 10px;
+  background: var(--glass); border: 1px solid var(--line); border-radius: 22px;
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 14px 40px rgba(0,0,0,.45);
+}
+.ye-btn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  width: 62px; height: 62px; border-radius: 16px; border: 1px solid var(--line); background: var(--dusk-2);
+  color: var(--ink); font: 700 13px var(--body); cursor: pointer;
+}
+.ye-btn svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.ye-btn:active { background: var(--dusk-3); }
+.ye-info { color: var(--sunset); }
+.ye-tl { min-width: 0; padding: 0 14px; }
+.ye-scale { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-dim); letter-spacing: .03em; text-transform: uppercase; height: 18px; }
+.ye-track { position: relative; height: 62px; }
+.ye-line, .ye-fill { position: absolute; left: 0; top: 16px; height: 6px; border-radius: 3px; }
+.ye-line { right: 0; background: linear-gradient(90deg, #ff7a2f 0%, #ffb347 35%, #6b5a52 55%, #3d8fd6 75%, #49a9e6 100%); opacity: .5; }
+.ye-fill { width: 0; background: linear-gradient(90deg, #ff7a2f 0%, #ffb347 35%, #6b5a52 55%, #3d8fd6 75%, #49a9e6 100%); background-size: 900px 100%; transition: width .35s ease; }
+.ye-stop {
+  position: absolute; top: 0; transform: translateX(-50%); width: 76px; padding: 0; border: 0; background: none;
+  color: var(--ink-dim); display: flex; flex-direction: column; align-items: center; cursor: pointer;
+}
+.ye-stop i { display: block; width: 14px; height: 14px; margin-top: 12px; border-radius: 50%; background: var(--dusk); border: 2px solid rgba(238,241,246,.65); transition: transform .2s, background .2s; }
+.ye-stop b { margin-top: 6px; font: 800 15px/1 var(--display); color: var(--ink); letter-spacing: .02em; }
+.ye-stop span { margin-top: 2px; font-size: 11.5px; line-height: 1.15; text-align: center; max-width: 80px; }
+.ye-stop.past i { background: rgba(238,241,246,.65); }
+.ye-stop.on i { transform: scale(1.25); background: #fff; border-color: #fff; }
+.ye-stop.on b { color: var(--butterscotch); }
+.ye-stop.on span { color: var(--ink); font-weight: 700; }
+
+.ye-when { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0 0; }
+.ye-date { display: inline-block; padding: 4px 12px; border-radius: 999px; font: 800 17px/1.2 var(--display); letter-spacing: .03em; background: rgba(233,180,124,.16); color: var(--butterscotch); border: 1px solid rgba(233,180,124,.45); }
+.card .ye-lead { font-size: 18.5px; line-height: 1.45; margin: 0 0 14px; color: #f6efe6; }
+.ye-gauges .gauge.g-layers svg { stroke: #e9b47c; } .ye-gauges .g-layers .g-bar i.on { background: #e9b47c; }
+.ye-gauges .gauge.g-water svg { stroke: #5cc4ff; } .ye-gauges .g-water .g-bar i.on { background: #5cc4ff; }
+.ye-gauges .gauge.g-shield svg { stroke: #b49cff; } .ye-gauges .g-shield .g-bar i.on { background: #b49cff; }
+.ye-nav { display: grid; grid-template-columns: minmax(0, auto) minmax(0, 1fr); gap: 10px; margin-top: 10px; }
+.ye-nav .tour-btn { min-height: 52px; white-space: normal; line-height: 1.2; padding: 6px 14px; }
+.ye-nav .tour-btn.primary { justify-self: end; }
+.ye-nav.one { grid-template-columns: 1fr; }
+
+@media (max-width: 760px), (orientation: portrait) and (max-width: 900px) {
+  :root { --ye-h: 92px; }
+  .ye-stop span { display: none; }
+  .ye-stop { width: 48px; }
+  .ye-track { height: 52px; }
+  .ye-bar { width: calc(100vw - 16px); gap: 6px; padding: 6px 8px; }
+  .ye-btn { width: 54px; height: 58px; }
+}
+@media (max-width: 520px) {
+  .ye-btn span { display: none; }
+  .ye-btn { width: 46px; height: 52px; }
+}

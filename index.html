@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>Earth Explorer</title>
+  <meta name="description" content="Open up a 3D Earth. Slice it, peel it, and dig to the center to learn about the layers inside our planet.">
+  <meta name="theme-color" content="#141a26">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Earth Explorer">
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/icon-180.png">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/youngearth.css"><!-- Young Earth time machine -->
+</head>
+<body>
+  <div id="stage" aria-label="3D model of Earth"></div>
+  <div id="labels" aria-hidden="false"><svg id="labelLines"></svg></div>
+  <div id="flash" aria-hidden="true"></div>
+
+  <!-- Top-left: title + what you are looking at -->
+  <header class="hud" id="hud">
+    <h1 id="appTitle">Earth Explorer</h1>
+    <p class="hud-line" id="hudLine">Tap a layer to learn about it.</p>
+    <div id="hudExtra"></div>
+  </header>
+
+  <!-- Top middle: three ways to open the Earth -->
+  <div class="views" id="views" role="radiogroup" aria-label="How to open the Earth">
+    <button role="radio" aria-checked="true" data-view="cutaway"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9h-9z"/><path d="M12 3v9h9"/></svg><span>Cutaway</span></button>
+    <button role="radio" aria-checked="false" data-view="slice"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5.5"/><circle cx="12" cy="12" r="2.2"/></svg><span>Slice</span></button>
+    <button role="radio" aria-checked="false" data-view="peel"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="5"/><path d="M7.5 10.5C5 8 4 5 5 3c2 1 4 3 5 5.5M16.5 10.5C19 8 20 5 19 3c-2 1-4 3-5 5.5"/></svg><span>Peel</span></button>
+  </div>
+
+  <!-- Peel controls (only in Peel view) -->
+  <div class="peelbar" id="peelBar" hidden>
+    <button class="tour-btn" id="peelBack">Put a layer back</button>
+    <button class="tour-btn primary" id="peelNext">Peel the next layer</button>
+  </div>
+
+  <!-- Notice (for problems) -->
+  <div class="notice" id="notice" hidden>
+    <span id="noticeText"></span>
+    <button class="notice-close" id="noticeClose" aria-label="Close notice">✕</button>
+  </div>
+
+  <!-- Bottom menu bar -->
+  <nav class="dock" id="dock" aria-label="Main">
+    <button class="dock-btn" data-panel="explore"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>Explore</span></button>
+    <button class="dock-btn" data-panel="tours"><svg viewBox="0 0 24 24"><path d="M5 20V5l6 3 8-3v15l-8 3-6-3z"/><path d="M11 8v15"/></svg><span>Tours</span></button>
+    <button class="dock-btn" data-panel="show"><svg viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><span>Show</span></button>
+    <div class="dock-seg" role="radiogroup" aria-label="Drawing scale">
+      <button class="dock-btn" role="radio" aria-checked="true" data-scale="easy"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="6"/></svg><span>Easy view</span></button>
+      <button class="dock-btn" role="radio" aria-checked="false" data-scale="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="8"/><path d="M3 21l3-3M18 6l3-3"/></svg><span>True scale</span></button>
+    </div>
+    <button class="dock-btn" id="homeBtn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c3 3 3 14 0 17M12 3.5c-3 3-3 14 0 17"/></svg><span>Whole Earth</span></button>
+    <button class="dock-btn" data-panel="search"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg><span>Search</span></button>
+  </nav>
+
+  <!-- Earth right now (today's earthquakes) -->
+  <aside class="status" id="status" aria-label="Earth right now">
+    <button class="status-head" id="statusToggle" aria-expanded="false" aria-controls="statusMore">
+      <span class="status-dot" aria-hidden="true"></span>
+      <span class="status-title">Earth right now</span>
+      <span class="status-more-label" id="statusMoreLabel">More</span>
+      <svg class="status-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>
+    </button>
+    <div class="status-grid">
+      <div class="stat"><span class="stat-label">Earthquakes today</span><b id="stCount">…</b></div>
+      <div class="stat"><span class="stat-label">Biggest</span><b id="stBig">…</b></div>
+    </div>
+    <div class="status-more" id="statusMore" hidden></div>
+  </aside>
+
+  <!-- Search (opens near the top so the iPad keyboard doesn't cover it) -->
+  <section class="panel panel-top" id="panel-search" hidden aria-label="Search">
+    <div class="panel-head"><h2>Search</h2><button class="close" data-close aria-label="Close">✕</button></div>
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
+      <input id="searchInput" type="search" placeholder="Try “core”, “magma”, or “diamond”" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" aria-label="Search">
+      <button id="searchClear" aria-label="Clear search" hidden>✕</button>
+    </div>
+    <div class="panel-body" id="searchResults"></div>
+  </section>
+
+  <!-- Slide-up panels -->
+  <section class="panel" id="panel-explore" hidden aria-label="Explore">
+    <div class="panel-head"><h2>Explore Earth</h2><button class="close" data-close aria-label="Close">✕</button></div>
+    <div class="panel-body" id="exploreList"></div>
+  </section>
+
+  <section class="panel" id="panel-tours" hidden aria-label="Guided tours">
+    <div class="panel-head"><h2>Guided tours</h2><button class="close" data-close aria-label="Close">✕</button></div>
+    <div class="panel-body" id="tourList"></div>
+  </section>
+
+  <section class="panel" id="panel-show" hidden aria-label="Show">
+    <div class="panel-head"><h2>Show</h2><button class="close" data-close aria-label="Close">✕</button></div>
+    <div class="panel-body">
+      <label class="toggle"><input type="checkbox" data-show="labels" checked><span>Layer names</span></label>
+      <label class="toggle"><input type="checkbox" data-show="advanced"><span>Advanced layers <small>Lithosphere and asthenosphere</small></span></label>
+      <label class="toggle"><input type="checkbox" data-show="quakes"><span>Today’s earthquakes <small>Real earthquakes from the last day</small></span></label>
+      <button class="wide-btn" id="fullscreenBtn" hidden>Full screen</button>
+      <button class="wide-btn ghost" data-panel="help">How to explore (help)</button>
+      <button class="wide-btn ghost" data-panel="about">About this site &amp; credits</button>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-help" hidden aria-label="Help">
+    <div class="panel-head"><h2>How to explore</h2><button class="close" data-close aria-label="Close">✕</button></div>
+    <div class="panel-body help">
+      <ul class="gestures">
+        <li><span class="g-icon" aria-hidden="true">☝️</span><div><b>Spin Earth</b>Drag with one finger.</div></li>
+        <li><span class="g-icon" aria-hidden="true">🤏</span><div><b>Zoom in and out</b>Pinch with two fingers.</div></li>
+        <li><span class="g-icon" aria-hidden="true">👆</span><div><b>Learn about a layer</b>Tap a layer, or tap its name.</div></li>
+        <li><span class="g-icon" aria-hidden="true">🔪</span><div><b>Open the Earth</b>At the top, tap <b>Cutaway</b>, <b>Slice</b>, or <b>Peel</b>.</div></li>
+        <li><span class="g-icon" aria-hidden="true">🔍</span><div><b>Find something fast</b>Tap Search and type a word like “core.”</div></li>
+      </ul>
+      <p class="hint">Lost? Tap <b>Whole Earth</b> to go back to the start.</p>
+      <button class="wide-btn" data-close>Start exploring</button>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-about" hidden aria-label="About">
+    <div class="panel-head"><h2>About this site</h2><button class="close" data-close aria-label="Close">✕</button></div>
+    <div class="panel-body about" id="aboutBody"></div>
+  </section>
+
+  <!-- Info card -->
+  <article class="card" id="card" hidden aria-live="polite">
+    <div class="card-scroll" id="cardScroll">
+      <div class="card-top">
+        <span class="badge" id="cardBadge"></span>
+        <button class="close" id="cardClose" aria-label="Close card">✕</button>
+      </div>
+      <div id="cardContent"></div>
+    </div>
+    <div class="tourbar" id="tourBar" hidden>
+      <button class="tour-btn" id="tourPrev">Back</button>
+      <span id="tourProgress"></span>
+      <button class="tour-btn primary" id="tourNext">Next stop</button>
+    </div>
+  </article>
+
+  <!-- Message for very old browsers -->
+  <div class="fail" id="fail" hidden>
+    <h2>Earth Explorer can’t start on this device</h2>
+    <p id="failText">This iPad or browser is too old for 3D pictures. Ask your teacher for help. (It needs iPadOS 15 or newer.)</p>
+  </div>
+  <script nomodule>document.getElementById('fail').hidden = false;</script>
+
+  <!-- Content you can edit (text, numbers, stops, tours) -->
+  <script src="js/data/layers.js"></script>
+  <script src="js/data/topics.js"></script>
+  <script src="js/data/stops.js"></script>
+  <script src="js/data/tours.js"></script>
+  <script src="js/data/places.js"></script>
+  <!-- Young Earth time machine content (remove this line AND the youngearth.css line at the top to turn it off) -->
+  <script src="js/data/youngearth.js"></script>
+  <!-- The program -->
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
