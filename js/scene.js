@@ -259,6 +259,8 @@ export function createScene(container) {
   api.view = 'cutaway';
   const rot = { base: new THREE.Quaternion(), yaw: 0, pitch: 0, vy: 0, vp: 0, yawLim: Infinity, pitchLim: 1.35 };
   const cam = { dist: 4, px: 0, py: 0 };
+  const ZOOM_POWER = 2.4;                       // bigger = faster pinch zoom (Mars Explorer uses the same idea)
+  const zoomFling = { v: 0, t: 0, cx: 0, cy: 0, on: false };   // lets a quick pinch keep gliding
   api.cam = cam;
   const shift = { x: 0, y: 0, tx: 0, ty: 0 };
   let W = 1, H = 1;
@@ -296,6 +298,7 @@ export function createScene(container) {
   };
   let camTween = null;
   api.camTo = (target, ms = 900) => {
+    zoomFling.on = false;
     if (camTween) camTween();
     const from = { ...cam };
     const to = { dist: target.dist ?? cam.dist, px: target.px ?? (api.view === 'slice' ? cam.px : 0), py: target.py ?? (api.view === 'slice' ? cam.py : 0) };
@@ -583,9 +586,31 @@ export function createScene(container) {
     el.setPointerCapture(e.pointerId);
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     rot.vy = rot.vp = 0;
+    zoomFling.on = false; zoomFling.v = 0; zoomFling.t = 0;
     if (pointers.size === 1) gesture = { t0: performance.now(), x0: e.clientX, y0: e.clientY, moved: false, multi: false, lastT: performance.now() };
     else if (gesture) { gesture.multi = true; gesture.pinch = pinchState(); }
   });
+  // ---------- zooming ----------
+  // zoom is measured as height above the surface you are looking at
+  function zoomBase() {
+    if (api.view === 'slice') return 0;
+    if (api.view === 'peel') return [1, R.crust, R.cmb, R.icb][api.peel.stage];
+    return 1;
+  }
+  function zoomAt(newDist, cx, cy) {             // zoom so the spot at (cx, cy) stays under your fingers
+    const lim = limits();
+    newDist = clamp(newDist, lim.min, lim.max);
+    if (api.view === 'slice') {
+      const k = worldPerPxAt(cam.dist), k2 = worldPerPxAt(newDist);
+      const wx = cam.px + (cx - W / 2 - shiftPx()) * k, wy = cam.py - (cy - H / 2 + shiftPy()) * k;
+      cam.px = wx - (cx - W / 2 - shiftPx()) * k2; cam.py = wy + (cy - H / 2 + shiftPy()) * k2;
+      clampPan();
+    }
+    const hit = newDist <= lim.min + 1e-6 || newDist >= lim.max - 1e-6;
+    cam.dist = newDist;
+    api.requestRender();
+    return hit;
+  }
   function pinchState() {
     const [a, b] = [...pointers.values()];
     return { d: Math.hypot(a.x - b.x, a.y - b.y), cx: (a.x + b.x) / 2, cy: (a.y + b.y) / 2, dist: cam.dist, px: cam.px, py: cam.py };
@@ -601,8 +626,10 @@ export function createScene(container) {
       gesture.lastT = performance.now();
     } else if (pointers.size === 2 && gesture.pinch) {
       const now = pinchState(), s = gesture.pinch;
-      const lim = limits();
-      const newDist = clamp(s.dist * s.d / Math.max(now.d, 1), lim.min, lim.max);
+      const lim = limits(), base = zoomBase();
+      // Fast zoom: a small pinch makes a big change (like Mars Explorer's zoomFactor)
+      const ratio = s.d / Math.max(now.d, 1);
+      const newDist = clamp(base + (s.dist - base) * Math.pow(ratio, ZOOM_POWER), lim.min, lim.max);
       if (api.view === 'slice') {
         // keep the spot under your fingers in place
         const k = worldPerPxAt(s.dist), k2 = worldPerPxAt(newDist);
@@ -610,6 +637,11 @@ export function createScene(container) {
         cam.px = wx - (now.cx - W / 2 - shiftPx()) * k2; cam.py = wy + (now.cy - H / 2 + shiftPy()) * k2;
         clampPan();
       }
+      // remember how fast the zoom is changing, so it can keep gliding after the fingers lift
+      const t = performance.now(), hNew = Math.max(newDist - base, 1e-4), hOld = Math.max(cam.dist - base, 1e-4);
+      const dt = Math.max(8, t - (zoomFling.t || t - 16)) / 1000;
+      const v = Math.log(hNew / hOld) / dt;
+      zoomFling.v = zoomFling.v * 0.5 + v * 0.5; zoomFling.t = t; zoomFling.cx = now.cx; zoomFling.cy = now.cy;
       cam.dist = newDist;
       api.requestRender();
     }
@@ -628,21 +660,19 @@ export function createScene(container) {
     } else if (gesture && pointers.size === 1) {
       gesture.pinch = null;
     }
+    if (pointers.size < 2 && zoomFling.t && performance.now() - zoomFling.t < 120 && Math.abs(zoomFling.v) > 0.3) {
+      zoomFling.on = true; zoomFling.v = clamp(zoomFling.v, -6, 6);
+    }
+    if (pointers.size < 2) zoomFling.t = 0;
   }
   el.addEventListener('pointerup', endPointer);
   el.addEventListener('pointercancel', endPointer);
   el.addEventListener('wheel', e => {
     e.preventDefault();
-    const lim = limits();
-    const f = Math.exp(e.deltaY * 0.0015);
-    const nd = clamp(cam.dist * f, lim.min, lim.max);
-    if (api.view === 'slice') {
-      const k = worldPerPxAt(cam.dist), k2 = worldPerPxAt(nd);
-      const wx = cam.px + (e.clientX - W / 2 - shiftPx()) * k, wy = cam.py - (e.clientY - H / 2 + shiftPy()) * k;
-      cam.px = wx - (e.clientX - W / 2 - shiftPx()) * k2; cam.py = wy + (e.clientY - H / 2 + shiftPy()) * k2;
-      clampPan();
-    }
-    cam.dist = nd; api.requestRender();
+    zoomFling.on = false;
+    const base = zoomBase();
+    const f = Math.exp(clamp(e.deltaY, -120, 120) * (e.ctrlKey ? 0.012 : 0.004));
+    zoomAt(base + (cam.dist - base) * f, e.clientX, e.clientY);
   }, { passive: false });
   function rotateBy(dx, dy, dt) {
     const speed = 0.0055 * Math.min(1, Math.max(0.12, (cam.dist - 0.9) / 3));
@@ -703,6 +733,15 @@ export function createScene(container) {
       const t = clamp((now - tw.t0) / tw.ms, 0, 1);
       tw.fn(t);
       if (t >= 1) { tweens.delete(tw); tw.done && tw.done(); }
+    }
+    // zoom keeps gliding a moment after a quick pinch, then eases to a stop
+    if (zoomFling.on && pointers.size < 2) {
+      const base = zoomBase();
+      const nd = base + (cam.dist - base) * Math.exp(zoomFling.v * rawDt);
+      const hit = zoomAt(nd, zoomFling.cx, zoomFling.cy);
+      zoomFling.v *= Math.exp(-rawDt * 8);
+      if (hit || Math.abs(zoomFling.v) < 0.05) zoomFling.on = false;
+      dirty = true;
     }
     // inertia
     if (!gesture && (Math.abs(rot.vy) > 1e-5 || Math.abs(rot.vp) > 1e-5)) {

@@ -19,3 +19,6 @@ if (!ok) {
       .catch(e => console.warn('Feature not loaded:', name, e));
   }
 }
+
+// Stop iPad Safari from pinch-zooming the whole page (same fix as Mars Explorer)
+['gesturestart', 'gesturechange', 'gestureend'].forEach(ev => document.addEventListener(ev, e => e.preventDefault(), { passive: false }));
