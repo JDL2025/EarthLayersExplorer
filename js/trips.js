@@ -39,12 +39,12 @@ export function init(api, ui) {
     if (x < 1e6) return `${fmt(roundNice(x / 1000))} thousand×`;
     return `${(Math.round(x / 1e5) / 10).toFixed(1)} million×`;
   }
-  function tempText(f) { return `${fmt(f < 200 ? Math.round(f) : Math.round(f / 10) * 10)}°F`; }
+  function tempText(f) { return `${fmt(f < 1000 ? Math.round(f) : Math.round(f / 10) * 10)}°F`; }
   function driveText(km) {
     const h = miles(km) / 65;
     if (h < 1 / 60) return 'less than a minute';
-    if (h < 1) return `${Math.max(1, Math.round(h * 60))} minutes`;
-    if (h < 36) return `${Math.round(h)} hours`;
+    if (h < 1) { const m = Math.max(1, Math.round(h * 60)); return `${m} minute${m === 1 ? '' : 's'}`; }
+    if (h < 36) { const r = Math.round(h); return `${r} hour${r === 1 ? '' : 's'}`; }
     return `${(Math.round(h / 24 * 10) / 10)} days`;
   }
   const layerOf = d => api.layerAtDepth(d, ui.state.advanced);
