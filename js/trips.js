@@ -89,7 +89,7 @@ export function init(api, ui) {
     // stop marks
     const n = stops.length, pos = new Float32Array(n * 3), col = new Float32Array(n * 3), size = new Float32Array(n), al = new Float32Array(n);
     stops.forEach((s, i) => { pos.set([0, yFor(s.dug), 0.001], i * 3); col.set([1, 1, 1], i * 3); size[i] = 7; al[i] = 0.9; });
-    ticks = add(api.makeDots(pos, col, size, al, { soft: 0 }));
+    ticks = n ? add(api.makeDots(pos, col, size, al, { soft: 0 })) : null;
     // the capsule
     const cp = new Float32Array([0, 1, 0.0012, 0, 1, 0.0013]), cc = new Float32Array([1, 0.75, 0.35, 1, 1, 1]);
     capsule = add(api.makeDots(cp, cc, new Float32Array([46, 15]), new Float32Array([0.95, 1]), { soft: 1, additive: false }));
@@ -151,6 +151,7 @@ export function init(api, ui) {
   ui.afterRenderHooks.add(placeTag);
 
   function cleanup() {
+    digCleanup();
     clearObjs(); shaft = shaftLit = capsule = ticks = null;
     if (tagEl) { tagEl.remove(); tagEl = null; }
     if (pinTag) { pinTag.remove(); pinTag = null; }
@@ -342,7 +343,7 @@ export function init(api, ui) {
     const w = api.earth.localToWorld(pin.userData.local.clone());
     const n = w.clone().normalize(), toCam = api.camera.position.clone().sub(w).normalize();
     const p = api.project(w);
-    const vis = p.ok && n.dot(toCam) > 0.05 && pin.visible;
+    const vis = p.ok && n.dot(toCam) > 0.05 && pin.visible && !burstOn;
     pinTag.style.display = vis ? '' : 'none';
     pinTag.style.transform = `translate(${p.x}px, ${p.y - 30}px) translate(-50%, -100%)`;
   });
@@ -441,115 +442,182 @@ export function init(api, ui) {
     const { lat, lon } = state.start;
     const alat = -lat, alon = lon > 0 ? lon - 180 : lon + 180;
     state.exit = { lat: alat, lon: alon, local: api.latLonToLocal(alat, alon), place: describe(alat, alon) };
-    state.stops = [...STOPS.map(s => ({ ...s, dug: s.depth })), ...FAR.map(s => ({ ...s, dug: s.dist, far: true }))];
-    state.phase = 'ride'; state.i = 0; state.dug = 0;
-    ui.tapHandler = () => true;      // taps do nothing during the ride
+    state.stops = [];                // no stops: the Journey trip teaches the layers, this one is just for fun
+    state.phase = 'ready'; state.dug = 0;
+    ui.tapHandler = () => true;      // taps do nothing during the dig
     ui.setHud(`Digging from ${state.start.place.short}`);
     showCities(false);
     api.setGlobeOnly(false);
     if (pin) pin.visible = false;
     if (pinTag) pinTag.style.display = 'none';
-    api.setView('slice', { up: state.start.local, dist: api.fitDist() });
+    follow.on = false;               // the camera shows the whole tunnel
+    api.setView('slice', { up: state.start.local });
+    readyCard();
     setTimeout(() => {
-      if (!state || state.kind !== 'dig') return;
-      buildShaft(THROUGH, state.stops);
+      if (!state || state.kind !== 'dig' || state.phase !== 'ready') return;
+      buildShaft(THROUGH, []);
       placeCapsule(0);
-      follow.on = true;
-      showStop(0);
+      digReadout(0);
+      tag(`${icon('pin')} Start`);
     }, 1000);
   }
-  // a small drawing of the whole tunnel with a dot where you are
-  function tripPic(dug) {
+  // a small drawing of the whole tunnel
+  function tripPic() {
     const R = { crust: 0.915, cmb: 0.546, icb: 0.192 };
-    const k = [[0, 1], [35, 0.915], [2890, 0.546], [5150, 0.192], [6371, 0]];
-    const rOf = d => { for (let j = 1; j < k.length; j++) if (d <= k[j][0]) return k[j - 1][1] + (k[j][1] - k[j - 1][1]) * (d - k[j - 1][0]) / (k[j][0] - k[j - 1][0]); return 0; };
-    const y = dug <= EARTH ? rOf(dug) : -rOf(THROUGH - dug);
     const cx = 200, cy = 110, s = 96;
     const ring = (r, c) => `<circle cx="${cx}" cy="${cy}" r="${s * r}" fill="${c}" stroke="rgba(0,0,0,.35)" stroke-width="1.2"/>`;
-    const my = cy - y * s;
-    return `<figure class="pic"><svg viewBox="0 0 400 220" role="img" aria-label="Where you are in the tunnel">
+    return `<figure class="pic"><svg viewBox="0 0 400 220" role="img" aria-label="Your tunnel goes straight through the center of the Earth">
       <rect width="400" height="220" fill="#070a10"/>
       ${ring(1, LAYERS.crust.color)}${ring(R.crust, LAYERS.mantle.color)}${ring(R.cmb, LAYERS.outer.color)}${ring(R.icb, LAYERS.inner.color)}
-      <line x1="${cx}" y1="${cy - s}" x2="${cx}" y2="${cy + s}" stroke="rgba(255,255,255,.45)" stroke-width="2" stroke-dasharray="4 4"/>
-      <line x1="${cx}" y1="${cy - s}" x2="${cx}" y2="${my}" stroke="#ffe2bf" stroke-width="4"/>
-      <circle cx="${cx}" cy="${my}" r="7" fill="#fff" stroke="#e9b47c" stroke-width="3"/>
-      <line x1="${cx + 10}" y1="${my}" x2="${cx + 58}" y2="${my}" stroke="#fff" stroke-width="1.5"/>
-      <text x="${cx + 64}" y="${my + 5}" fill="#fff" font-size="15" font-weight="700" font-family="Atkinson Hyperlegible, sans-serif">You are here</text>
-      <text x="${cx - 112}" y="${cy - s + 12}" fill="#a8b3c5" font-size="13" text-anchor="end" font-family="Atkinson Hyperlegible, sans-serif">Start</text>
-      <text x="${cx - 112}" y="${cy + s}" fill="#a8b3c5" font-size="13" text-anchor="end" font-family="Atkinson Hyperlegible, sans-serif">Other side</text>
-    </svg><figcaption>The whole trip through Earth (the crust is drawn thicker than real).</figcaption></figure>`;
+      <line x1="${cx}" y1="${cy - s}" x2="${cx}" y2="${cy + s}" stroke="rgba(255,255,255,.75)" stroke-width="2.5" stroke-dasharray="5 5"/>
+      <circle cx="${cx}" cy="${cy - s}" r="7" fill="#fff" stroke="#e9b47c" stroke-width="3"/>
+      <line x1="${cx + 10}" y1="${cy - s}" x2="${cx + 66}" y2="${cy - s}" stroke="#fff" stroke-width="1.5"/>
+      <text x="${cx + 72}" y="${cy - s + 5}" fill="#fff" font-size="15" font-weight="700" font-family="Atkinson Hyperlegible, sans-serif">You start here</text>
+      <line x1="${cx + 4}" y1="${cy + s}" x2="${cx + 66}" y2="${cy + s}" stroke="#a8b3c5" stroke-width="1.5"/>
+      <text x="${cx + 72}" y="${cy + s + 5}" fill="#a8b3c5" font-size="15" font-family="Atkinson Hyperlegible, sans-serif">Other side</text>
+    </svg><figcaption>Your tunnel goes straight through the center of the Earth (the crust is drawn thicker than real).</figcaption></figure>`;
   }
-  function showStop(i, back) {
-    if (!state) return;
-    const prevDug = state.dug;
-    state.i = i;
-    const s = state.stops[i];
-    const last = i === state.stops.length - 1;
-    // card
-    const L = LAYERS[layerOf(s.far ? THROUGH - s.dug : s.dug)];
-    const depth = s.far ? THROUGH - s.dug : s.dug;
-    const title = fill(s.title);
-    const [dTxt, dMi] = depthText(depth);
-    const where = last ? 'Back at the surface!' : s.far ? `${depthText(s.dug)[0]} dug, ${dTxt} below the surface` : (i === 0 ? 'At the surface' : `${dTxt} (${dMi}) down`);
-    let h = `<h2>${esc(title)}</h2>
-      ${tripPic(s.dug)}
-      <div class="box compare" style="margin-top:6px"><h3>${icon(s.icon)}${esc(where)}</h3><p>${esc(fill(s.text))}</p>${s.adv && ui.state.advanced ? `<p><b>Advanced:</b> ${esc(s.adv)}</p>` : ''}</div>`;
-    if (s.fun) h += `<div class="box know"><h3>${icon('star')}Fun fact</h3><p>${esc(s.fun)}</p></div>`;
-    if (last) h += `<div class="box compare"><h3>${icon('pin')}Where you pop out</h3><p>You started at ${esc(state.start.place.text)}.</p><p>You popped out at ${esc(state.exit.place.text)}.${state.exit.place.water ? ' Splash! You came out in the water.' : ''}</p></div>
-        <div class="actions"><button class="act primary" data-dig="again">${icon('restart')}<span>Dig again from a new place</span></button></div>`;
-    else {
-      h += `<p class="note">You are in the <b style="color:${L.color}">${esc(L.name)}</b>. Watch the box on the left to see the depth, heat, and squeeze.</p>`;
-      const nx = state.stops[i + 1];
-      if (nx) h += `<p class="note">Next stop: <b>${esc(fill(nx.title))}</b></p>`;
-    }
+  function readyCard() {
+    const h = `<h2>Ready to dig!</h2>
+      ${tripPic()}
+      <div class="box compare" style="margin-top:6px"><h3>${icon('pin')}Your starting place</h3><p>${esc(cap(state.start.place.text))}</p></div>
+      <p class="note">Tap <b>Start digging</b> and watch your tunnel zoom through the Earth. Where will you pop out?</p>`;
     ui.showCard(h, { badge: 'Dig straight through', badgeColor: '#e9b47c', badgeIcon: 'drill', kind: 'dig', id: 'dig' });
-    document.querySelector('[data-dig="again"]')?.addEventListener('click', () => { ui.open('dig'); });
-    ui.useBar({
-      progress: `Stop ${i + 1} of ${state.stops.length}`,
-      onPrev: i > 0 ? () => showStop(i - 1, true) : null,
-      onNext: last ? () => { ui.stopActivity(); ui.closeCard(); api.setView('cutaway'); } : () => showStop(i + 1),
-      nextLabel: last ? 'Finish' : (i === 0 ? 'Start digging' : 'Next stop')
-    });
-    // move
-    if (last) { showExit(); return; }
-    if (state.phase === 'exit') {   // coming back from the exit view
-      state.phase = 'ride';
-      if (pin) pin.visible = false;
-      api.setView('slice', { up: state.start.local, dist: api.fitDist() });
-      setTimeout(() => { if (!state) return; buildShaft(THROUGH, state.stops); travel(prevDug, s.dug); }, 950);
-      return;
-    }
-    travel(prevDug, s.dug);
+    ui.useBar({ progress: 'Your tunnel is ready', onPrev: null, nextLabel: 'Start digging', onNext: startDig });
   }
-  function travel(from, to) {
-    follow.on = true;
-    const d0 = from, d1 = to;
-    // move evenly in a stretched scale so short hops near the surface still look like a trip
-    const f = x => x <= EARTH ? Math.cbrt(x / EARTH) : 2 - Math.cbrt((THROUGH - x) / EARTH);
-    const g = s => s <= 1 ? Math.pow(s, 3) * EARTH : THROUGH - Math.pow(2 - s, 3) * EARTH;
-    const s0 = f(d0), s1 = f(d1);
-    const ms = 900 + 1500 * Math.min(1, Math.abs(s1 - s0) * 2.2);
-    if (state.stopAnim) state.stopAnim();
-    state.stopAnim = api.tween(ms, t => {
-      const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-      const dug = g(s0 + (s1 - s0) * e);
-      state.dug = dug; placeCapsule(dug);
-      const depth = dug <= EARTH ? dug : THROUGH - dug;
-      readout(depth, dug);
-      tag(`${icon('pin')} ${esc(depthText(depth)[0])}${dug > EARTH + 1 ? ' deep' : ''}`);
-    }, () => { if (state) state.stopAnim = null; });
+  // the box in the top left: just the layer and how far you have dug
+  function digReadout(dug) {
+    const depth = dug <= EARTH ? dug : THROUGH - dug;
+    const L = LAYERS[layerOf(depth)];
+    const [g1, g2] = depthText(dug);
+    ui.hudExtra.innerHTML = `<div class="readout"><div class="r-layer"><i style="background:${L.color}"></i>${esc(L.name)}<small>${L.advanced ? 'advanced layer' : 'layer'}</small></div><dl>
+      <dt>Distance dug</dt><dd><b>${dug < 0.5 ? '0 km' : g1}</b><span>${dug < 0.5 ? '0 miles' : g2}</span></dd></dl></div>`;
+  }
+  // ---------- the dig: about 5 seconds, slow at the start, fastest at the core, slow at the end ----------
+  const DIG_MS = 5000;
+  function startDig() {
+    if (!state || state.kind !== 'dig' || state.phase !== 'ready') return;
+    state.phase = 'dig';
+    ui.useBar(null);
+    ui.closeCard();
+    ui.banner(null);
+    if (!capsule) { buildShaft(THROUGH, []); placeCapsule(0); }
+    api.camTo({ dist: api.fitDist(true), px: 0, py: 0 }, 700);
+    setTimeout(() => {
+      if (!state || state.phase !== 'dig') return;
+      // ease along the drawn tunnel (screen distance), like a subway train leaving and arriving
+      const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      const dugAt = y => y >= 0 ? api.rToDepth(y) : THROUGH - api.rToDepth(-y);
+      state.stopAnim = api.tween(DIG_MS, t => {
+        const dug = Math.max(0, Math.min(THROUGH, dugAt(1 - 2 * ease(t))));
+        state.dug = dug; placeCapsule(dug); digReadout(dug);
+        tag(`${icon('drill')} ${esc(depthText(dug)[0])}`);
+      }, () => {
+        if (!state || state.phase !== 'dig') return;
+        state.stopAnim = null;
+        state.dug = THROUGH; placeCapsule(THROUGH); digReadout(THROUGH);
+        tag(`${icon('drill')} ${esc(depthText(THROUGH)[0])}`);
+        state.timer = setTimeout(showExit, 450);
+      });
+    }, 550);
   }
   function showExit() {
-    if (state.stopAnim) { state.stopAnim(); state.stopAnim = null; }
+    if (!state || state.kind !== 'dig') return;
     state.phase = 'exit';
-    state.dug = THROUGH;
-    readout(0, THROUGH);
     const { lat, lon } = state.exit;
     api.setView('cutaway', { yaw: api.yawFor(lon), pitch: Math.max(-1.1, Math.min(1.1, lat * Math.PI / 180 * 0.9)) });
     api.setGlobeOnly(true);
-    if (pin) pin.visible = true;
     placePin(state.exit.local, `${icon('pin')} You pop out here!`);
-    ui.banner(`<b>You pop out ${esc(state.exit.place.phrase)}!</b><small>Your trip started at ${esc(state.start.place.short)}, on the other side of the world.</small>`);
+    pin.visible = false;             // hidden until the light burst
+    state.timer = setTimeout(() => {
+      if (!state || state.phase !== 'exit') return;
+      burst();
+      ui.banner(`<b>You pop out ${esc(state.exit.place.phrase)}!</b><small>Your trip started at ${esc(state.start.place.short)}, on the other side of the world.</small>`);
+      state.timer = setTimeout(() => { if (state && state.phase === 'exit') { endCard(); showAgain(); } }, 1300);
+    }, 950);
+  }
+  // ---------- a burst of light where you pop out ----------
+  let flash = null, burstEl = null, burstOn = false;   // the "You pop out here!" tag waits until the flash fades
+  function burst() {
+    const v = state.exit.local.clone().normalize().multiplyScalar(1.006);
+    if (flash) { api.earth.remove(flash); flash.geometry.dispose(); }
+    flash = api.makeDots(new Float32Array([v.x, v.y, v.z, v.x, v.y, v.z]), new Float32Array([1, 0.62, 0.3, 1, 0.97, 0.85]),
+      new Float32Array([0, 0]), new Float32Array([1, 1]), { soft: 1, additive: true, depthTest: false });
+    flash.renderOrder = 7; flash.userData.local = v;
+    api.earth.add(flash);
+    // CSS rings and sparks on top
+    if (burstEl) burstEl.remove();
+    burstEl = document.createElement('div');
+    burstEl.className = 'pop-burst';
+    burstEl.innerHTML = '<i class="ring"></i><i class="ring r2"></i>' +
+      Array.from({ length: 12 }, (_, i) => `<b class="spark" style="--a:${i * 30 + 15}deg;--d:${i % 2 ? 70 : 95}px"></b>`).join('');
+    document.getElementById('labels').appendChild(burstEl);
+    const sz = flash.geometry.attributes.size, al = flash.geometry.attributes.alpha;
+    const pz = pin.geometry.attributes.size;
+    pin.visible = true; burstOn = true;
+    const MS = 1500;
+    const stop = api.tween(MS, t => {
+      // flash: grows fast for a split second, then shrinks down to the dot
+      const up = Math.min(1, t / 0.12), down = Math.max(0, (t - 0.12) / 0.88);
+      const eo = 1 - Math.pow(1 - down, 3);
+      const big = t < 0.12 ? 480 * (1 - (1 - up) * (1 - up)) : 480 + (30 - 480) * eo;
+      sz.setX(0, big); sz.setX(1, t < 0.12 ? 120 * up : 120 + (12 - 120) * eo);
+      burstOn = t < 0.55;
+      al.setX(0, 1 - eo * 0.85); al.setX(1, 1 - eo);
+      sz.needsUpdate = al.needsUpdate = true;
+      // the real dot pops in under the flash
+      const k = Math.min(1, Math.max(0, (t - 0.15) / 0.5)), pop = k < 1 ? 1 + Math.sin(k * Math.PI) * 0.6 : 1;
+      pz.setX(0, 30 * k * pop); pz.setX(1, 11 * k * pop); pz.needsUpdate = true;
+      api.requestRender();
+    }, () => {
+      if (flash) { api.earth.remove(flash); flash.geometry.dispose(); flash = null; }
+      pz.setX(0, 30); pz.setX(1, 11); pz.needsUpdate = true;
+      api.requestRender();
+    });
+    state.stopBurst = stop;
+    setTimeout(() => { if (burstEl) { burstEl.remove(); burstEl = null; } }, 1700);
+  }
+  ui.afterRenderHooks.add(() => {
+    if (!burstEl || !flash) { if (burstEl && !flash) burstEl.style.opacity = 0; return; }
+    const p = api.project(api.earth.localToWorld(flash.userData.local.clone()));
+    burstEl.style.transform = `translate(${p.x}px, ${p.y}px)`;
+  });
+  function endCard() {
+    const END = FAR.find(s => s.exit) || {};
+    const ex = state.exit.place;
+    let h = `<h2>${esc(fill(END.title || 'You pop out {exit}!'))}</h2>
+      <div class="box compare"><h3>${icon('pin')}Where you pop out</h3><p>You started at ${esc(state.start.place.text)}.</p>
+        <p>You popped out at ${esc(ex.text)}.${ex.water ? ' Splash! You came out in the water.' : ''}</p></div>`;
+    if (END.text) h += `<div class="box know"><h3>${icon('drill')}Your tunnel</h3><p>${esc(END.text)}</p>${END.fun ? `<p>${esc(END.fun)}</p>` : ''}</div>`;
+    h += `<p class="note">Want to try another place? Tap <b>Dig again from a new place</b> at the bottom of the screen.</p>`;
+    ui.showCard(h, { badge: 'Dig straight through', badgeColor: '#e9b47c', badgeIcon: 'drill', kind: 'dig', id: 'dig' });
+  }
+  // ---------- "Dig again" button above the Exit button ----------
+  let againBtn = null;
+  function showAgain() {
+    if (againBtn) againBtn.remove();
+    againBtn = document.createElement('button');
+    againBtn.className = 'dig-again';
+    againBtn.innerHTML = `${icon('restart')}<span>Dig again from a new place</span>`;
+    againBtn.onclick = () => ui.open('dig');
+    document.body.appendChild(againBtn);
+    document.body.classList.add('dig-again-on');
+    placeAgain();
+  }
+  function placeAgain() {
+    if (!againBtn || !ui.actBar) return;
+    const r = ui.actBar.getBoundingClientRect();
+    againBtn.style.bottom = (innerHeight - r.top + 10) + 'px';
+  }
+  addEventListener('resize', () => requestAnimationFrame(placeAgain));
+  function digCleanup() {
+    if (state && state.timer) clearTimeout(state.timer);
+    if (state && state.stopBurst) state.stopBurst();
+    if (flash) { api.earth.remove(flash); flash.geometry.dispose(); flash = null; }
+    burstOn = false;
+    if (burstEl) { burstEl.remove(); burstEl = null; }
+    if (againBtn) { againBtn.remove(); againBtn = null; }
+    document.body.classList.remove('dig-again-on');
   }
 
   return { journey, dig, describe, tempF, squeeze };

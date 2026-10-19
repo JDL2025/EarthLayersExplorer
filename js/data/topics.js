@@ -187,7 +187,7 @@ window.TOPICS = {
     short: "What if you dug a tunnel straight through Earth? Where would you come out?",
     paras: [
       "Tap anywhere on the globe to dig straight through from that spot. The dots show big cities, like Chicago. Tap a dot to start there!",
-      "Then tap Start digging here. Tap Next stop to dig deeper. You will make lots of stops on the way to the other side!",
+      "Then tap Start digging here, and then Start digging. Watch your tunnel zoom through the center of the Earth and see where you pop out!",
       "Of course, no one could really do this. It is far too hot, and the squeeze would crush any machine."
     ],
     video: "what if you dug a hole through the earth"

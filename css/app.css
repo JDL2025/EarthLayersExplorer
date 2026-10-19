@@ -524,3 +524,38 @@ button:focus-visible, input:focus-visible + span { outline: 3px solid var(--suns
 @media (prefers-reduced-motion: reduce) {
   .panel, .card { animation: none; }
 }
+
+/* ---------- Dig straight through: light burst where you pop out ---------- */
+.pop-burst { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; z-index: 9; }
+.pop-burst .ring {
+  position: absolute; left: -60px; top: -60px; width: 120px; height: 120px; border-radius: 50%;
+  border: 4px solid rgba(255, 236, 190, .95); box-shadow: 0 0 24px rgba(255, 190, 110, .9), inset 0 0 18px rgba(255, 190, 110, .6);
+  transform: scale(.1); opacity: 0; animation: popRing 1.1s cubic-bezier(.15, .7, .3, 1) forwards;
+}
+.pop-burst .ring.r2 { border-width: 2px; animation-delay: .18s; animation-duration: 1.3s; }
+.pop-burst .spark {
+  position: absolute; left: -4px; top: -4px; width: 8px; height: 8px; border-radius: 50%;
+  background: #fff6dc; box-shadow: 0 0 10px 3px rgba(255, 190, 110, .95);
+  opacity: 0; animation: popSpark .9s cubic-bezier(.1, .75, .3, 1) .05s forwards;
+}
+@keyframes popRing { 0% { transform: scale(.1); opacity: 1; } 100% { transform: scale(2.6); opacity: 0; } }
+@keyframes popSpark {
+  0% { transform: rotate(var(--a)) translateX(0) scale(1.3); opacity: 1; }
+  100% { transform: rotate(var(--a)) translateX(var(--d)) scale(.2); opacity: 0; }
+}
+
+/* "Dig again" sits just above the Exit bar */
+.dig-again {
+  position: absolute; z-index: 22; left: 50%; transform: translateX(-50%);
+  bottom: calc(96px + var(--safe-b));
+  display: inline-flex; align-items: center; gap: 10px; min-height: 56px; padding: 0 24px 0 18px;
+  border-radius: 18px; border: 1px solid var(--butterscotch); background: var(--butterscotch); color: var(--dusk);
+  font-weight: 800; font-size: 18px; white-space: nowrap; cursor: pointer;
+  box-shadow: 0 10px 28px rgba(0,0,0,.45);
+  animation: againIn .35s ease-out;
+}
+.dig-again svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.dig-again:active { filter: brightness(.9); }
+@keyframes againIn { from { opacity: 0; transform: translate(-50%, 12px); } to { opacity: 1; transform: translate(-50%, 0); } }
+.dig-again-on .card { bottom: calc(var(--dock-h) + 92px + var(--safe-b)); }
+@media (prefers-reduced-motion: reduce) { .dig-again { animation: none; } }
