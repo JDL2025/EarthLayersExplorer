@@ -407,13 +407,21 @@ export function init(api, ui) {
   ui.afterRenderHooks.add(() => {
     if (!cityDots) return;
     const placed = [];
+    // on the "you pop out" globe, keep city names out from under the "You pop out here!" tag
+    let pp = null;
+    if (pin && pin.visible && state && state.phase === 'exit') { const q = api.project(api.earth.localToWorld(pin.userData.local.clone())); if (q.ok) pp = q; }
+    // and out from under the boxes at the top of the screen
+    const boxes = [...document.querySelectorAll('.readout, .banner')].map(e => e.getBoundingClientRect()).filter(r => r.width > 0);
+    const underBox = (x, y) => boxes.some(r => x > r.left - 50 && x < r.right + 50 && y - 40 < r.bottom && y > r.top);
     cities.forEach((c, i) => {
       const t = cityTags[i], s = cityScreen(c);
       const home = t.classList.contains('home');
       let show = s.vis;
+      if (show && underBox(s.p.x, s.p.y)) show = false;
+      const below = !!(show && pp && Math.abs(s.p.x - pp.x) < 125 && s.p.y > pp.y - 50 && s.p.y < pp.y + 14);   // would sit under the tag: put the name below its dot
       if (show && !home) for (const q of placed) if (Math.abs(q.x - s.p.x) < 58 && Math.abs(q.y - s.p.y) < 20) { show = false; break; }
       t.style.display = show ? '' : 'none';
-      if (show) { placed.push(s.p); t.style.transform = `translate(${s.p.x}px, ${s.p.y - 16}px) translate(-50%, -100%)`; }
+      if (show) { placed.push(below ? { x: s.p.x, y: s.p.y + 40 } : s.p); t.style.transform = below ? `translate(${s.p.x}px, ${s.p.y + 12}px) translate(-50%, 0)` : `translate(${s.p.x}px, ${s.p.y - 16}px) translate(-50%, -100%)`; }
     });
   });
 
@@ -527,6 +535,7 @@ export function init(api, ui) {
     const { lat, lon } = state.exit;
     api.setView('cutaway', { yaw: api.yawFor(lon), pitch: Math.max(-1.1, Math.min(1.1, lat * Math.PI / 180 * 0.9)) });
     api.setGlobeOnly(true);
+    showCities(true);                // city names help kids see what they popped out near
     placePin(state.exit.local, `${icon('pin')} You pop out here!`);
     pin.visible = false;             // hidden until the light burst
     state.timer = setTimeout(() => {
